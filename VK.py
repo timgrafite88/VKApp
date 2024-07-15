@@ -1,14 +1,13 @@
 import requests
 from tqdm import tqdm
-import json
 from datetime import datetime
 
 
 class VK:
     """Класс работы с ВК"""
 
-    def __init__(self, token):
-        self.token = token
+    def __init__(self, vk_token):
+        self.vk_token = vk_token
 
     def get_vk_id(self):
         """Функция получения id пользователя"""
@@ -17,7 +16,7 @@ class VK:
 
         vk_user = 'https://api.vk.ru/method/users.get'
 
-        user_params = {'access_token': self.token,
+        user_params = {'access_token': self.vk_token,
                        'user_ids': f'{user}',
                        'v': '5.199'
                        }
@@ -29,7 +28,7 @@ class VK:
     def get_params(self):
         # параметры подключения
         return {
-            'access_token': self.token,
+            'access_token': self.vk_token,
             'user_id': self.get_vk_id(),
             'v': '5.199',
             'extended': '1',
