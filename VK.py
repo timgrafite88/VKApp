@@ -1,5 +1,6 @@
 import requests
 from tqdm import tqdm
+import json
 from datetime import datetime
 
 
@@ -8,22 +9,16 @@ class VK:
 
     def __init__(self, vk_token):
         self.vk_token = vk_token
+        self.vk_user = input('Введите ID или screen_name: ')
 
-    def get_vk_id(self):
-        """Функция получения id пользователя"""
-
-        user = input('Введите ID или screen_name: ')
-
+    def get_vk_req(self):
+        """Функция получения ответа от ВК"""
         vk_user = 'https://api.vk.ru/method/users.get'
-
         user_params = {'access_token': self.vk_token,
-                       'user_ids': f'{user}',
+                       'user_ids': f'{self.vk_user}',
                        'v': '5.199'
                        }
-
-        res = requests.get(vk_user, params=user_params)
-
-        return str(res.json()['response'][0]['id'])
+        return requests.get(vk_user, params=user_params).json()
 
     def get_params(self):
         # параметры подключения
@@ -35,10 +30,15 @@ class VK:
             'album_id': 'profile'
         }
 
-    def get_user_params(self):
-        """Функция получения от пользователя количества сохраняемых фотографий"""
-        photo_count = input('Какое количество фотогрфий будем сохранять на Яндекс-Диск? ')
-        return int(photo_count)
+    def get_count_user_photo(self):
+        """Функция возвращает количество фотографий в профиле ВК пользователя"""
+        res = self.get_vk_info()
+        return res['count']
+
+    def get_vk_id(self):
+        """Функция получения id пользователя"""
+        res = self.get_vk_req()
+        return str(res['response'][0]['id'])
 
     def get_vk_info(self):
         """Функция получения информации о пользователе"""
@@ -47,11 +47,15 @@ class VK:
         dict_fotos = response_vk.json()['response']
         return dict_fotos
 
+    def get_user_params(self):
+        """Функция получения от пользователя количества сохраняемых фотографий"""
+        photo_count = input(
+            f'Какое количество фотогрфий будем сохранять на Яндекс-Диск? От 0 до {self.get_count_user_photo()} ')
+        return int(photo_count)
+
     def get_users_photo_info(self):
         """Функция получения информации о фотографиях пользователя"""
-
         cnt = self.get_user_params()
-
         max_foto_list = []
 
         try:
